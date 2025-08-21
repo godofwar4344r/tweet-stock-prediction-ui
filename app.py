@@ -1,44 +1,40 @@
+
+
 import streamlit as st
 import pandas as pd
 import numpy as np
-import joblib
-import tensorflow as tf
+import matplotlib.pyplot as plt
 
-# ---------------------------
-# Load your trained models
-# ---------------------------
-# sentiment_model = joblib.load("sentiment_model.pkl")  # example
-# stock_model = tf.keras.models.load_model("stock_model.h5")
+# --- Title ---
+st.title("📈 Tweet-based Stock Price Predictor")
 
-st.set_page_config(page_title="Tweet-based Stock Prediction", layout="centered")
+# --- Sidebar for inputs ---
+st.sidebar.header("Prediction Settings")
+stock_symbol = st.sidebar.text_input("Enter Stock Symbol", "AAPL")
+n_days = st.sidebar.number_input("Days to Predict", min_value=1, max_value=30, value=7)
 
-st.title("📈 Tweet-based Stock Prediction App")
-st.write("Analyze tweets and predict possible stock movement.")
+# --- Predict Button ---
+if st.sidebar.button("Predict"):
+    st.subheader(f"Predicted Closing Prices for {stock_symbol} - Next {n_days} Days")
 
-# ---------------------------
-# User Input
-# ---------------------------
-tweet_input = st.text_area("✍️ Enter a tweet or keyword", placeholder="e.g., Tesla stock going to moon 🚀")
+    # Dummy prediction logic (replace later with your ML model)
+    last_price = 150  # placeholder
+    predictions = [last_price + np.random.randn() * 2 for _ in range(n_days)]
+    dates = pd.date_range(start=pd.Timestamp.today(), periods=n_days)
 
-if st.button("Predict"):
-    if tweet_input.strip() == "":
-        st.warning("Please enter a tweet/keyword.")
-    else:
-        # ---------------------------
-        # (Dummy prediction for now)
-        # Replace this with your ML pipeline
-        # ---------------------------
-        # sentiment = sentiment_model.predict([tweet_input])[0]
-        # stock_pred = stock_model.predict(processed_input)
-        
-        # Dummy outputs
-        sentiment = np.random.choice(["Positive", "Negative", "Neutral"])
-        stock_pred = np.random.choice(["Up 📈", "Down 📉", "Stable ➖"])
+    # Create dataframe
+    df_pred = pd.DataFrame({"Date": dates, "Predicted Close": predictions})
 
-        # ---------------------------
-        # Display Results
-        # ---------------------------
-        st.subheader("🔎 Prediction Results")
-        st.write(f"**Sentiment:** {sentiment}")
-        st.write(f"**Stock Movement:** {stock_pred}")
-        st.success("Prediction complete ✅")
+    # Show table
+    st.dataframe(df_pred)
+
+    # Show line chart
+    fig, ax = plt.subplots()
+    ax.plot(df_pred["Date"], df_pred["Predicted Close"], marker="o", linestyle="-", label="Prediction")
+    ax.set_xlabel("Date")
+    ax.set_ylabel("Predicted Close Price")
+    ax.legend()
+    st.pyplot(fig)
+
+else:
+    st.info("👈 Enter stock symbol and days, then click Predict.")
